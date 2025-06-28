@@ -1,0 +1,26 @@
+{% extends "account/_base.html" %}
+
+{% load static i18n %}
+
+{% block title %}
+  {% translate "Registro inativo" %}
+{% endblock title %}
+{% block account_body %}
+  <div class="w-100">
+    <div class="text-center mb-8">
+      <h1 class="text-gray-900">
+        <img src="{% static 'images/cross.svg' %}"
+             class="h-50px h-lg-60px"
+             alt="closed" />
+      </h1>
+      <div class="text-gray-500 fw-semibold fs-4 mt-5">
+        {% translate "Sentimos muito, mas o registro de novas contas está fechado no momento." %}
+      </div>
+    </div>
+    <div class="text-center">
+      <a href="{% url 'account_login' %}" class="btn btn-lg btn-light w-100">
+        {% translate "Voltar para o login" %}
+      </a>
+    </div>
+  </div>
+{% endblock account_body %}

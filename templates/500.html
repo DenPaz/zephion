@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% load static i18n %}
+
+{% block title %}
+  {% trans "Erro de servidor (500)" %}
+{% endblock title %}
+{% block content %}
+  <div class="d-flex flex-row-fluid flex-column flex-column-fluid text-center p-10 py-lg-20">
+    <a href="{% url 'dashboard:index' %}" class="pt-lg-20 mb-12">
+      <img src="{% static 'images/logo-zephion-full.svg' %}"
+           class="h-80px theme-light-show"
+           alt="logo" />
+      <img src="{% static 'images/logo-zephion-full-dark.svg' %}"
+           class="h-80px theme-dark-show"
+           alt="logo-dark" />
+    </a>
+    <h1 class="fw-bold fs-2qx text-gray-800 mb-10">
+      {% trans "Erro de sistema" %}
+    </h1>
+    <div class="fw-semibold fs-3 text-muted mb-15">
+      {% trans "Algo deu errado!" %}
+      <br />
+      {% trans "Tente novamente mais tarde." %}
+    </div>
+    <div class="text-center">
+      <a href="{% url 'dashboard:index' %}"
+         class="btn btn-lg btn-primary fw-bold">
+        {% trans "Voltar ao dashboard" %}
+      </a>
+    </div>
+  </div>
+{% endblock content %}

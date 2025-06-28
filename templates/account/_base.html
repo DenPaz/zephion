@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% load static allauth %}
+
+{% block body_attributes %}
+  id="kt_body" class="app-blank"
+{% endblock body_attributes %}
+{% block body %}
+  <div class="d-flex flex-column flex-root" id="kt_app_root">
+    <div class="d-flex flex-column flex-lg-row flex-column-fluid">
+      <div class="d-flex flex-column flex-lg-row-auto bg-primary w-xl-600px position-xl-relative">
+        <div class="d-flex flex-row-fluid flex-center flex-column text-center p-12 p-lg-20">
+          <a href="{% url 'account_login' %}">
+            <img src="{% static 'images/logo-zephion-full-dark.svg' %}"
+                 class="h-45px h-lg-60px"
+                 alt="logo" />
+          </a>
+        </div>
+      </div>
+      <div class="d-flex flex-column flex-lg-row-fluid py-10">
+        <div class="d-flex flex-center flex-column flex-column-fluid">
+          <div class="w-sm-500px w-100 p-10 p-lg-15 mx-auto">
+            {% block account_body %}
+            {% endblock account_body %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-dismissible alert-danger d-flex align-items-center justify-content-between p-4 mt-7">
+                <i class="ki-duotone ki-information-5 fs-2hx text-danger me-4">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                  <span class="path3"></span>
+                </i>
+                <span class="fs-6">
+                  {% for error in form.non_field_errors %}
+                    {{ error }}
+                  {% endfor %}
+                </span>
+                <button type="button" class="btn btn-icon" data-bs-dismiss="alert">
+                  <i class="bi bi-x fs-1 text-danger ms-2"></i>
+                </button>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        {% block account_footer %}
+          <div class="d-flex flex-center flex-wrap fs-6 p-5 pb-0">
+            <a href="https://labtec.ufsc.br" target="_blank">
+              <img src="{% static 'images/logo-labtec-full.svg' %}"
+                   class="h-40px h-lg-45px"
+                   alt="logo-labtec" />
+            </a>
+          </div>
+        {% endblock account_footer %}
+      </div>
+    </div>
+  </div>
+{% endblock body %}

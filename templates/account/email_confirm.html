@@ -1,0 +1,56 @@
+{% extends "account/_base.html" %}
+
+{% load account i18n allauth %}
+
+{% block title %}
+  {% translate "Confirmar endereço de e-mail" %}
+{% endblock title %}
+{% block account_body %}
+  {% url 'account_confirm_email' confirmation.key as action_url %}
+  <form method="post" action="{{ action_url }}" class="form w-100">
+    {% csrf_token %}
+    <div class="text-center mb-8">
+      <h1 class="text-gray-900">
+        {% translate "Confirmar endereço de e-mail" %}
+      </h1>
+      <div class="text-gray-500 fw-semibold fs-4 mt-5">
+        {% if confirmation %}
+          {% user_display confirmation.email_address.user as user_display %}
+          {% if can_confirm %}
+            {% blocktrans with confirmation.email_address.email as email %}
+              Por favor, confirme que <a href="mailto:{{ email }}">{{ email }}</a> é um endereço de e-mail para o usuário {{ user_display }}.
+            {% endblocktrans %}
+          {% else %}
+            {% blocktrans %}
+              Não é possível confirmar {{ email }} porque ele já foi confirmado por uma conta diferente.
+            {% endblocktrans %}
+          {% endif %}
+        {% else %}
+          {% url 'account_email' as email_url %}
+          {% blocktrans %}
+            Este link de confirmação de e-mail expirou ou é inválido. Por favor, <a href="{{ email_url }}">emita uma nova solicitação de confirmação de e-mail</a>.
+          {% endblocktrans %}
+        {% endif %}
+      </div>
+    </div>
+    <div class="text-center">
+      {% if confirmation %}
+        {% if can_confirm %}
+          <button type="submit" class="btn btn-lg btn-primary w-100 mb-4">
+            <span class="indicator-label">
+              {% translate "Confirmar" %}
+            </span>
+            <span class="indicator-progress">
+              {% translate "Por favor, aguarde..." %}
+              <span class="spinner-border spinner-border-sm align-middle ms-2">
+              </span>
+            </span>
+          </button>
+        {% endif %}
+      {% endif %}
+      <a href="{% url 'account_login' %}" class="btn btn-lg btn-light w-100">
+        {% translate "Voltar para o login" %}
+      </a>
+    </div>
+  </form>
+{% endblock account_body %}

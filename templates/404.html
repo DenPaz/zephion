@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% load static i18n %}
+
+{% block title %}
+  {% trans "Página não encontrada (404)" %}
+{% endblock title %}
+{% block content %}
+  <div class="d-flex flex-column flex-center flex-column-fluid p-10">
+    <img src="{% static 'assets/images/illustrations/sketchy-1/18.png' %}"
+         class="mw-100 mb-10 h-lg-450px theme-light-show"
+         alt="no-permission" />
+    <img src="{% static 'assets/images/illustrations/sketchy-1/18-dark.png' %}"
+         class="mw-100 mb-10 h-lg-450px theme-dark-show"
+         alt="no-permission-dark" />
+    <h1 class="fw-semibold mb-10">
+      {% if exception %}
+        {{ exception }}
+      {% else %}
+        {% trans "Página não encontrada" %}
+      {% endif %}
+    </h1>
+    <a href="{% url 'dashboard:index' %}"
+       class="btn btn-lg btn-primary fw-bold">
+      {% trans "Voltar ao dashboard" %}
+    </a>
+  </div>
+{% endblock content %}

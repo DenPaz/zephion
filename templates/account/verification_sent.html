@@ -1,0 +1,24 @@
+{% extends "account/_base.html" %}
+
+{% load static i18n %}
+
+{% block title %}
+  {% translate "Verifique seu endereço de e-mail" %}
+{% endblock title %}
+{% block account_body %}
+  <div class="w-100">
+    <div class="text-center mb-8">
+      <h1 class="text-gray-900">
+        {% translate "Verifique seu endereço de e-mail" %}
+      </h1>
+      <div class="text-gray-500 fw-semibold fs-4 mt-5">
+        {% translate "Enviamos um e-mail para você para verificação. Siga o link fornecido para finalizar o processo de registro. Se você não vir o e-mail de verificação na sua caixa de entrada principal, verifique sua pasta de spam. Entre em contato conosco se você não receber o e-mail de verificação dentro de alguns minutos." %}
+      </div>
+    </div>
+    <div class="text-center">
+      <a href="{% url 'account_login' %}" class="btn btn-lg btn-light w-100">
+        {% translate "Voltar para o login" %}
+      </a>
+    </div>
+  </div>
+{% endblock account_body %}
