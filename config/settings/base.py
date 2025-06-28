@@ -257,7 +257,6 @@ ACCOUNT_SIGNUP_FORM_CLASS = "apps.users.forms.SignupForm"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_ADAPTER = "apps.users.adapters.AccountAdapter"
-ACCOUNT_FORMS = {}
 ACCOUNT_FORMS = {
     "add_email": "apps.users.forms_allauth.AddEmailForm",
     "change_password": "apps.users.forms_allauth.ChangePasswordForm",
