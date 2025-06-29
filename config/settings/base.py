@@ -77,6 +77,10 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "allauth.mfa",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders",
+    "drf_spectacular",
     "braces",
     "django_htmx",
     "django_cotton",
@@ -87,7 +91,7 @@ LOCAL_APPS = [
     "apps.core.config.CoreConfig",
     "apps.dashboard.config.DashboardConfig",
     "apps.users.config.UsersConfig",
-    "apps.devices.config.DevicesConfig",
+    "apps.sensors.config.SensorsConfig",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -270,6 +274,33 @@ ACCOUNT_FORMS = {
 }
 ACCOUNT_CHANGE_EMAIL = True
 ACCOUNT_EMAIL_UNKNOWN_ACCOUNTS = False
+
+# -----------------------------------------------------------------------------
+# django-rest-framework
+# -----------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        # "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# -----------------------------------------------------------------------------
+# django-cors-headers
+# -----------------------------------------------------------------------------
+CORS_URLS_REGEX = r"^/api/.*$"
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Zephion API",
+    "DESCRIPTION": "Documentation of API endpoints of Zephion",
+    "VERSION": "1.0.0",
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
+    "SCHEMA_PATH_PREFIX": "/api/",
+}
 
 # -----------------------------------------------------------------------------
 # django-cotton
