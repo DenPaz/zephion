@@ -12,11 +12,7 @@ SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
     default="1ns3cure-s3cr3t-k3y",
 )
-ALLOWED_HOSTS = [
-    "localhost",
-    "0.0.0.0",  # noqa: S104
-    "127.0.0.1",
-]
+ALLOWED_HOSTS = ["*"]
 
 # -----------------------------------------------------------------------------
 # CACHES
