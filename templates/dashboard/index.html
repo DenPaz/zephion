@@ -1,4 +1,26 @@
 {% extends "dashboard/_base.html" %}
 
 {% block content %}
+  <div class="fs-1 fw-bold mb-6">
+    Informações dos Sensores
+  </div>
+  <div id="charts-container"
+       hx-get="{% url 'dashboard:index' %}"
+       hx-trigger="load, every 5s"
+       hx-swap="innerHTML">
+    {% include "dashboard/partials/charts.html" %}
+  </div>
 {% endblock content %}
+{% block extra_js %}
+  <script>
+    document.body.addEventListener("htmx:afterSwap", (event) => {
+      if (event.target.id === "charts-container") {
+        try {
+          renderCharts();
+        } catch (e) {
+          console.error("Failed to render charts after HTMX swap", e);
+        }
+      }
+    });
+  </script>
+{% endblock extra_js %}

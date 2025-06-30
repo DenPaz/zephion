@@ -1,0 +1,93 @@
+<div class="row mb-6">
+  <div class="col-6">
+    <div class="card card-flush">
+      <div class="card-header">
+        <h3 class="card-title fw-bold">Temperatura (°C)</h3>
+      </div>
+      <div class="card-body" id="wrapper-kt_chart_temp"></div>
+    </div>
+  </div>
+  <div class="col-6">
+    <div class="card card-flush">
+      <div class="card-header">
+        <h3 class="card-title fw-bold">Umidade (%)</h3>
+      </div>
+      <div class="card-body" id="wrapper-kt_chart_hum"></div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-6">
+    <div class="card card-flush">
+      <div class="card-header">
+        <h3 class="card-title fw-bold">Gás (ppm)</h3>
+      </div>
+      <div class="card-body" id="wrapper-kt_chart_gas"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Proper JSON injection (NO extra curly braces) -->
+<script id="labels-data" type="application/json">{{ labels|safe }}</script>
+<script id="temp-data" type="application/json">{{ temp_data|safe }}</script>
+<script id="hum-data" type="application/json">{{ hum_data|safe }}</script>
+<script id="gas-data" type="application/json">{{ gas_data|safe }}</script>
+
+<script>
+  const renderCharts = () => {
+    const labels = JSON.parse(document.getElementById('labels-data').textContent).map(ts => ts.slice(11, 19));
+    const temps = JSON.parse(document.getElementById('temp-data').textContent);
+    const hums = JSON.parse(document.getElementById('hum-data').textContent);
+    const gases = JSON.parse(document.getElementById('gas-data').textContent);
+    const fontFamily = KTUtil.getCssVariableValue('--bs-font-sans-serif');
+
+    const renderChart = (wrapperId, canvasId, label, data, colorVar) => {
+      const wrapper = document.getElementById(wrapperId);
+      wrapper.innerHTML = '';
+
+      const canvas = document.createElement('canvas');
+      canvas.id = canvasId;
+      canvas.className = 'mh-400px';
+      wrapper.appendChild(canvas);
+
+      const ctx = canvas.getContext("2d");
+      const color = KTUtil.getCssVariableValue(colorVar);
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label,
+            data,
+            borderColor: color,
+            backgroundColor: color,
+            fill: false,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          animation: false,
+          plugins: {
+            legend: {
+              labels: {
+                font: { family: fontFamily }
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { font: { family: fontFamily } } },
+            y: { ticks: { font: { family: fontFamily } } }
+          }
+        }
+      });
+    };
+
+    renderChart("wrapper-kt_chart_temp", "kt_chart_temp", "Temperatura (°C)", temps, "--kt-primary");
+    renderChart("wrapper-kt_chart_hum", "kt_chart_hum", "Umidade (%)", hums, "--kt-info");
+    renderChart("wrapper-kt_chart_gas", "kt_chart_gas", "Gás (ppm)", gases, "--kt-danger");
+  };
+
+  renderCharts();
+</script>
