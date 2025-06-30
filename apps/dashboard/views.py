@@ -22,7 +22,7 @@ class IndexView(HTMXTemplateMixin, TemplateView):
                 "page_description": _("Bem-vindo ao Zephion"),
                 "labels": json.dumps(
                     [
-                        timezone.localtime(r.timestamp).strftime("%Y-%m-%d %H:%M:%S")
+                        timezone.localtime(r.timestamp).strftime("%d %b, %H:%M:%S")
                         for r in readings
                     ],
                     cls=DjangoJSONEncoder,

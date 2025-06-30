@@ -11,16 +11,3 @@
     {% include "dashboard/partials/charts.html" %}
   </div>
 {% endblock content %}
-{% block extra_js %}
-  <script>
-    document.body.addEventListener("htmx:afterSwap", (event) => {
-      if (event.target.id === "charts-container") {
-        try {
-          renderCharts();
-        } catch (e) {
-          console.error("Failed to render charts after HTMX swap", e);
-        }
-      }
-    });
-  </script>
-{% endblock extra_js %}
