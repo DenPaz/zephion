@@ -4,143 +4,173 @@
 #include <DHTesp.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
 
-// OLED configuration
+// Configuration
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_ADDRESS 0x3C
-TwoWire myWire = TwoWire(0);
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &myWire, -1);
+#define DHT_PIN 21
+#define GAS_PIN 19
+#define SDA_PIN 23
+#define SCL_PIN 22
 
-// Sensor pins
-const int DHT_SENSOR_PIN = 21;
-const int GAS_SENSOR_PIN = 19;
+// BLE UUIDs
+#define SERVICE_UUID "4fafc201-1fb5-459e-8fcc-c5c9c331914b"
+#define CHARACTERISTIC_UUID "beb5483e-36e1-4688-b7f5-ea07361b26a8"
 
-// WiFi configuration
+// WiFi credentials
 const char *ssid = "Dennis";
 const char *password = "875462319";
-
-// Django server URL
 const char *serverUrl = "https://7fb257d5c410-1468329044895344350.ngrok-free.app/api/sensor-readings/";
 
-// Sensor instances
+// Global State
+BLECharacteristic *pCharacteristic;
+bool bleActive = false;
+TwoWire myWire = TwoWire(0);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &myWire, -1);
 DHTesp dht;
-
-// Sensor values
 float temperature = 0.0;
 float humidity = 0.0;
 int gasValue = 0;
 
-void setupDisplay();
-void readDHTSensor();
-void readGasSensor();
+// Function Prototypes
+void initDisplay();
+void initWiFi();
+void initBLE();
+void stopBLE();
+void readSensors();
 void updateDisplay();
-void connectToWiFi();
-void sendDataToServer();
+void sendData();
 
+// Setup
 void setup() {
   Serial.begin(115200);
   delay(1000);
-
-  connectToWiFi();
-
-  dht.setup(DHT_SENSOR_PIN, DHTesp::DHT11);
-  myWire.begin(23, 22);
-
-  setupDisplay();
+  myWire.begin(SDA_PIN, SCL_PIN);
+  initDisplay();
+  dht.setup(DHT_PIN, DHTesp::DHT11);
+  initWiFi();
+  if (WiFi.status() != WL_CONNECTED) {
+    initBLE();
+  }
 }
 
+// Loop
 void loop() {
-  readDHTSensor();
-  readGasSensor();
+  bool wifiConnected = WiFi.status() == WL_CONNECTED;
+  readSensors();
   updateDisplay();
-  sendDataToServer();
+  if (wifiConnected && bleActive) {
+    Serial.println("WiFi restored. Stopping BLE...");
+    stopBLE();
+    delay(200);
+  }
+  if (!wifiConnected && !bleActive) {
+    Serial.println("WiFi lost. Starting BLE...");
+    initBLE();
+    delay(200);
+  }
+  sendData();
   delay(5000);
 }
 
-void setupDisplay() {
+// Initialization
+void initDisplay() {
   if (!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS)) {
-    Serial.println(F("SSD1306 allocation failed"));
+    Serial.println("SSD1306 failed");
     while (true)
       ;
   }
-
   display.clearDisplay();
   display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
 }
 
-void readDHTSensor() {
-  TempAndHumidity data = dht.getTempAndHumidity();
-  temperature = data.temperature;
-  humidity = data.humidity;
+void initWiFi() {
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to WiFi");
+  for (int attempts = 0; attempts < 20 && WiFi.status() != WL_CONNECTED; attempts++) {
+    delay(500);
+    Serial.print(".");
+  }
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println(" Connected!");
+    Serial.print("IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println(" Failed to connect.");
+  }
 }
 
-void readGasSensor() {
-  gasValue = analogRead(GAS_SENSOR_PIN);
+void initBLE() {
+  BLEDevice::init("ESP32SensorBLE");
+  BLEServer *server = BLEDevice::createServer();
+  BLEService *service = server->createService(SERVICE_UUID);
+  pCharacteristic = service->createCharacteristic(
+    CHARACTERISTIC_UUID,
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+  pCharacteristic->addDescriptor(new BLE2902());
+  service->start();
+  BLEAdvertising *advertising = BLEDevice::getAdvertising();
+  advertising->addServiceUUID(SERVICE_UUID);
+  advertising->start();
+  bleActive = true;
+  Serial.println("BLE advertising started");
+}
+
+void stopBLE() {
+  BLEDevice::deinit(true);
+  bleActive = false;
+  Serial.println("BLE stopped");
+}
+
+// Sensor Handling
+void readSensors() {
+  TempAndHumidity data = dht.getTempAndHumidity();
+  if (!isnan(data.temperature))
+    temperature = data.temperature;
+  if (!isnan(data.humidity))
+    humidity = data.humidity;
+  gasValue = analogRead(GAS_PIN);
 }
 
 void updateDisplay() {
   display.clearDisplay();
   display.setCursor(0, 0);
-
-  display.print("T: ");
-  display.print(temperature, 1);
-  display.print((char)247);
-  display.println("C");
-
-  display.print("H: ");
-  display.print(humidity, 1);
-  display.println("%");
-
-  display.print("G: ");
-  display.print(gasValue);
-  display.println("ppm");
-
-  display.print("WiFi: ");
-  display.println(WiFi.status() == WL_CONNECTED ? "OK" : "X");
-
+  display.printf("T: %.1f%cC\n", temperature, (char)247);
+  display.printf("H: %.1f%%\n", humidity);
+  display.printf("G: %dppm\n", gasValue);
+  display.printf("Mode: %s\n", WiFi.status() == WL_CONNECTED ? "WiFi" : "BLE");
   display.display();
 }
 
-void connectToWiFi() {
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");
+void sendData() {
+  String jsonData = "{";
+  jsonData += "\"temperature\": " + String(temperature, 1) + ",";
+  jsonData += "\"humidity\": " + String(humidity, 1) + ",";
+  jsonData += "\"gas_value\": " + String(gasValue);
+  jsonData += "}";
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-
-  Serial.println("Connected!");
-  Serial.print("IP: ");
-  Serial.println(WiFi.localIP());
-}
-
-void sendDataToServer() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-
     http.begin(serverUrl);
     http.addHeader("Content-Type", "application/json");
-
-    String jsonData = "{";
-    jsonData += "\"temperature\": " + String(temperature, 1) + ",";
-    jsonData += "\"humidity\": " + String(humidity, 1) + ",";
-    jsonData += "\"gas_value\": " + String(gasValue);
-    jsonData += "}";
-
-    int httpResponseCode = http.POST(jsonData);
-
-    if (httpResponseCode > 0) {
-      Serial.printf("POST OK: ");
-      Serial.println(httpResponseCode);
+    int code = http.POST(jsonData);
+    if (code > 0) {
+      Serial.printf("POST OK: %d\n", code);
     } else {
-      Serial.printf("POST failed, error: ");
-      Serial.println(http.errorToString(httpResponseCode).c_str());
+      Serial.printf("POST failed: %s\n", http.errorToString(code).c_str());
     }
     http.end();
   } else {
-    Serial.println("WiFi not connected");
+    Serial.println("WiFi not connected. Sending via BLE...");
+    if (pCharacteristic) {
+      pCharacteristic->setValue(jsonData.c_str());
+      pCharacteristic->notify();
+    }
   }
 }
