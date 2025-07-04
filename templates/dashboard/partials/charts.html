@@ -3,7 +3,7 @@
     <div class="card card-flush">
       <div class="card-header">
         <h3 class="card-title fw-bold">
-          Temperatura (°C)
+          Sensor de Temperatura
         </h3>
       </div>
       <div class="card-body" id="wrapper-temp-chart">
@@ -17,7 +17,7 @@
     <div class="card card-flush">
       <div class="card-header">
         <h3 class="card-title fw-bold">
-          Umidade (%)
+          Sensor de Umidade
         </h3>
       </div>
       <div class="card-body" id="wrapper-hum-chart">
@@ -33,7 +33,7 @@
     <div class="card card-flush">
       <div class="card-header">
         <h3 class="card-title fw-bold">
-          Gás (ppm)
+          Sensor de Gás
         </h3>
       </div>
       <div class="card-body" id="wrapper-gas-chart">
@@ -68,13 +68,23 @@
     },
     "scales": {
       "x": {
+        "title": {
+          "display": true,
+          "text": "Horário",
+          "font": { "size": 16, "weight": "bold" }
+        },
         "ticks": {
-          "font": { "family": "inherit" }
+          "font": { "size": 12 }
         }
       },
       "y": {
+        "title": {
+          "display": true,
+          "text": "Temperatura (°C)",
+          "font": { "size": 16, "weight": "bold" }
+        },
         "ticks": {
-          "font": { "family": "inherit" }
+          "font": { "size": 12 }
         }
       }
     }
@@ -106,13 +116,23 @@
     },
     "scales": {
       "x": {
+        "title": {
+          "display": true,
+          "text": "Horário",
+          "font": { "size": 16, "weight": "bold" }
+        },
         "ticks": {
-          "font": { "family": "inherit" }
+          "font": { "size": 12 }
         }
       },
       "y": {
+        "title": {
+          "display": true,
+          "text": "Umidade (%)",
+          "font": { "size": 16, "weight": "bold" }
+        },
         "ticks": {
-          "font": { "family": "inherit" }
+          "font": { "size": 12 }
         }
       }
     }
@@ -144,13 +164,23 @@
     },
     "scales": {
       "x": {
+        "title": {
+          "display": true,
+          "text": "Horário",
+          "font": { "size": 16, "weight": "bold" }
+        },
         "ticks": {
-          "font": { "family": "inherit" }
+          "font": { "size": 12 }
         }
       },
       "y": {
+        "title": {
+          "display": true,
+          "text": "Gás (ppm)",
+          "font": { "size": 16, "weight": "bold" }
+        },
         "ticks": {
-          "font": { "family": "inherit" }
+          "font": { "size": 12 }
         }
       }
     }
