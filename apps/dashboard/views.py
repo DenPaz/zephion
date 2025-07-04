@@ -39,6 +39,9 @@ class IndexView(HTMXTemplateMixin, TemplateView):
                     [r.gas_value for r in readings],
                     cls=DjangoJSONEncoder,
                 ),
+                "temp_current": readings[-1].temperature if readings else None,
+                "hum_current": readings[-1].humidity if readings else None,
+                "gas_current": readings[-1].gas_value if readings else None,
             },
         )
         return context
